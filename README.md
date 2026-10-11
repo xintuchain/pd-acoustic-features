@@ -166,4 +166,4 @@ feats = extract_acoustic_features("voice.wav")
 
 ## 免责声明
 
-**请阅读 [DISCLAIMER.md](DISCLAIMER.md)。** 本工具明确不用于疾病诊断或临床决策。
+**本工具明确不用于疾病诊断或临床决策，只输出声学特征值。**（完整免责声明 DISCLAIMER 见付费版。）
