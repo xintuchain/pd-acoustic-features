@@ -6,6 +6,8 @@
 > 它不从音频中判断任何疾病，不输出"是否患有某种疾病"的结论，也不能替代临床评估。
 > 本仓库为**免费版**（特征定义 + 单文件最小示例 + UCI 复现步骤）；**完整源码（`src/` 包、`tests/` 自测、HTTP 服务封装、完整文档与 DISCLAIMER）见付费版。**
 
+**English:** PD Acoustic Features (free edition) is a lightweight Python toolkit that extracts standard acoustic perturbation features (jitter, shimmer, HNR, F0) from voice recordings. It is built on **parselmouth** (the Python interface to Praat) and released under **GPL-3.0-or-later** by LONGAID. **Research / personal voice-tracking use only — it is not a medical diagnostic tool, does not infer any disease from audio, and cannot replace clinical assessment.** This repo is the free edition (feature definitions + one single-file runnable example + UCI reproduction steps); the full source package, tests, HTTP server and full documentation are in the paid edition.
+
 ---
 
 ## 这是什么
@@ -77,6 +79,7 @@ feats = extract_acoustic_features("voice.wav")
 - 连续语音亦可，但特征方差会更大
 - 安静环境录制（背景噪声会拉低 HNR）
 - **不同录音协议能支持的结论不同**：朗读、自由说话、持续元音各自支持的推理不同（本工具只输出特征值，不跨协议下患病判断）
+- **本工具不对输入做降噪或增强**：自行降噪 / 增强会改变 jitter / shimmer / HNR，处理前后的结果不可直接比较
 
 ---
 
@@ -84,10 +87,10 @@ feats = extract_acoustic_features("voice.wav")
 
 本工具的方法论已在公开数据集上验证：
 
-- 使用 **UCI Parkinson's 语音数据集**（195 条，147 PD + 48 HC，22 个 MDVP 特征）
-- 提取的声学特征在 **PD 组 vs 健康对照**间：**22 个特征中 21 个 p < 0.01**（20 个 p < 0.001）
-- 特征变化**方向与已发表文献一致**（如 jitter、shimmer 升高，HNR 降低）
-- **嵌套选择（重要）**：本验证中任何「挑特征 / 挑阈值」的步骤都在交叉验证**内层**完成（不嵌套会系统性抬高指标）
+- 使用 **UCI Parkinson's 语音数据集**（195 条，147 PD + 48 HC）
+- **UCI 数据集自带的 22 个 MDVP 特征（原作者提取，非本工具输出）** 中，**21 个在 PD 组 vs 健康对照间 p < 0.01**（20 个 p < 0.001）
+- 本工具对**同名特征只做方向对照**（不同工具的同名特征不可直接比数值，见局限 4）；特征变化**方向与已发表文献一致**（如 jitter、shimmer 升高，HNR 降低）
+- **本验证只做逐特征组间检验，没有挑特征或挑阈值，不涉及嵌套选择**
 
 ### UCI 数据集的下载与复现
 
@@ -103,7 +106,7 @@ feats = extract_acoustic_features("voice.wav")
 
 | 维度 | 等级 | 说明 |
 |:--|:--|:--|
-| 方法论 | **TRL 5-6** | 在公开数据集上验证过，组间差异显著且方向正确 |
+| 方法论 | **TRL 4-5** | jitter/shimmer/HNR 与 PD 的组间差异有公开数据支持（UCI，探索性，见局限 9）；本工具输出本身尚未在患者录音上验证 |
 | 工程可用性 | **TRL 3-4** | 依赖开源 parselmouth（Praat），未在临床级设备环境验证 |
 
 **已知局限（重要）**
@@ -119,7 +122,7 @@ feats = extract_acoustic_features("voice.wav")
 9. ⚠️ **按录音统计 + 数据集混杂**：UCI 数据（含本 README 的验证结论）按**录音条数**而非**受试者**统计，同一名受试者的多条录音会同时进入组间比较，独立性被高估，显著性可能偏乐观（同一现象见局限第 10 条）。更严重的是，近期研究（Jouaiti & Ma, IEEE SLT 2026，arXiv:2609.21080）系统排查多个临床语音数据集（含帕金森库 Neurovoz、MDVR-KCL）发现：**只用静音片段训练的分类器，其表现常追平甚至超过完整音频**——即数据集本身存在「只用旁门线索也能分对」的混杂风险。因此本工具在 UCI 上的 p 值应视为**探索性**结论，不能当作临床证据。
 10. ⚠️ **重复录音的有效样本量远小于名义数量**：UCI 纵向数据集名义 5875 条记录实际来自 42 名患者，患者身份解释约 77% 的方差（Chauhan 2026，Digital Health），校正依赖后有效独立观测约 54。用重复录音做统计时请勿直接以记录条数计 N
 11. ⚠️ **高准确、"组间无差异"均不足以证明稳健**：受控声学干预研究（arXiv:2610.01846）显示，噪声/混响能系统性地改变疾病预测，而该声学因素在原数据里**组间并无显著差异**；反之，单一高分也不能证明特征抓到了疾病机制。判断稳健要**连同方差源（种子 / 子群体 / 说话人 / 协议）一起报告**，而非只看一个点估计。
-12. ⚠️ **手工特征在跨说话人分类上不如自监督表征**：清醒开颅构音障碍研究（arXiv:2610.11825）发现，跨说话人任务中多层自监督表征比传统手工声学描述子 AUC 高 18.2%–26.1%。**本工具卖的是可解释的特征值，不追求分类性能**，不可声称在手/手工特征上能与 SSL 表征竞争。
+12. ⚠️ **手工特征在跨说话人分类上不如自监督表征**：清醒开颅构音障碍研究（arXiv:2610.11825）发现，跨说话人任务中多层自监督表征比传统手工声学描述子 AUC 高 18.2%–26.1%。**本工具卖的是可解释的特征值，不追求分类性能**，不可声称手工特征上能与 SSL 表征竞争。
 13. ⚠️ **特征值对录音条件敏感（待补漂移表）**：同一段语音在不同信噪比 / 混响下的特征漂移幅度尚未系统量化；漂移大的特征将在本 README 标注「对录音条件敏感」。（计划于 10-31 前补一次「录音条件扰动检验」）
 14. ⚠️ **未做子群体检验**：UCI 该数据集不提供年龄/性别等分组信息，故未做「最差子群体指标」检验；不为此另找数据。
 
@@ -127,7 +130,7 @@ feats = extract_acoustic_features("voice.wav")
 
 本工具同时提供**免费版**和**付费版**，两者差在“交付形态”，不在“能不能用”：
 
-| | 免费版（GitHub 公开仓库） | 付费版（本商品） |
+| | 免费版（GitHub 公开仓库） | 付费版（面包多，链接上架后补） |
 |:--|:--|:--|
 | 特征定义表 + 使用说明 | ✅ | ✅ |
 | 一段最小可运行示例 | ✅ | ✅ |
