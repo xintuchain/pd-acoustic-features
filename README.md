@@ -45,10 +45,10 @@
 ## 安装
 
 ```bash
-pip install parselmouth numpy
+pip install praat-parselmouth numpy
 ```
 
-> parselmouth 通过 pip 安装（内含预编译的 Praat 二进制），跨平台（macOS / Linux / Windows）。
+> PyPI 包名是 **`praat-parselmouth`**（代码里 `import parselmouth` 不变）；包内已含预编译的 Praat 二进制，跨平台（macOS / Linux / Windows）。
 
 ## 用法
 
@@ -97,7 +97,7 @@ feats = extract_acoustic_features("voice.wav")
 - **数据**：UCI Machine Learning Repository — *Parkinson's Disease*（195 条录音，147 PD + 48 对照，22 个 MDVP 特征）
   URL: <https://archive.ics.uci.edu/dataset/174/parkinsons>
 - **复现步骤**：
-  1. `pip install parselmouth numpy pandas`
+  1. `pip install praat-parselmouth numpy pandas`
   2. 从上面链接下载数据文件（`parkinsons.data` / CSV）
   3. 用本仓库 `pd_acoustic_features.py` 对自己的录音提取特征；与 UCI 的 22 个 MDVP 特征只做**方向对照**（不同工具的同名特征不可直接比数值，见下方局限 4）
   4. 组间比较（PD vs 对照）建议按**受试者**聚合后统计，并报告最差子群体（无分组信息时注明「未做子群体检验」）
