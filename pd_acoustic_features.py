@@ -11,7 +11,7 @@ PD Acoustic Features — 单文件最小示例（免费版）
 
 依赖（仅两个）：**parselmouth**（Praat 的 Python 接口）+ **numpy**
 
-    pip install praat-parselmouth numpy
+    pip install praat-parselmouth soundfile numpy
 
 用法：
 
